@@ -155,7 +155,7 @@ inline static esp_err_t _spi_device_polling_transmit(spi_bus_device_handle_t dev
     _spi_device_t *spi_dev = (_spi_device_t *)(dev_handle);
     esp_err_t ret;
     SPI_DEVICE_MUTEX_TAKE(spi_dev, ESP_FAIL);
-    ret = spi_device_polling_transmit(spi_dev->handle, trans);
+    ret = spi_device_transmit(spi_dev->handle, trans);
     SPI_DEVICE_MUTEX_GIVE(spi_dev, ESP_FAIL);
     return ret;
 }
