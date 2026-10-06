@@ -112,9 +112,9 @@ void lcd_clear()
     memset((void*)lcd_data_buf, 0xff, s_lcd_info.width * s_lcd_info.height * sizeof(uint16_t));
 }
 
-uint8_t *lcd_GetBuff()
+uint16_t *lcd_GetBuff()
 {
-    return (uint8_t *)lcd_data_buf;
+    return lcd_data_buf;
 }
 
 void lcd_init(void)
@@ -129,6 +129,7 @@ void lcd_init(void)
 
     if (spi_bus == NULL) {
         ESP_LOGE(TAG, "spi_bus2 create failed");
+        return;
     }
 
     scr_interface_spi_config_t spi_lcd_cfg = {
@@ -139,8 +140,12 @@ void lcd_init(void)
         .swap_data = false,
     };
 
-    scr_interface_driver_t *iface_drv;
-    scr_interface_create(SCREEN_IFACE_SPI, &spi_lcd_cfg, &iface_drv);
+    scr_interface_driver_t *iface_drv = NULL;
+    esp_err_t iface_ret = scr_interface_create(SCREEN_IFACE_SPI, &spi_lcd_cfg, &iface_drv);
+    if (iface_ret != ESP_OK || iface_drv == NULL) {
+        ESP_LOGE(TAG, "screen SPI interface create failed: %s", esp_err_to_name(iface_ret));
+        return;
+    }
 
     scr_controller_config_t lcd_cfg = {
         .interface_drv = iface_drv,
