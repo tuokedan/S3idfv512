@@ -306,12 +306,20 @@ esp_err_t lcd_st7789_draw_bitmap(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
     esp_err_t ret;
     LCD_CHECK(NULL != bitmap, "bitmap pointer invalid", ESP_ERR_INVALID_ARG);
 
-    if(y>=ST7789_RESOLUTION_HOR) return ESP_ERR_INVALID_ARG;
-    if(y>=ST7789_RESOLUTION_HOR) return ESP_ERR_INVALID_ARG;
+    if (w == 0 || h == 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    if (x >= g_lcd_handle.width || y >= g_lcd_handle.height) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    if ((uint32_t)x + w > g_lcd_handle.width || (uint32_t)y + h > g_lcd_handle.height) {
+        return ESP_ERR_INVALID_ARG;
+    }
 
     LCD_IFACE_ACQUIRE();
     ret = lcd_st7789_set_window(x, y, x + w - 1, y + h - 1);
     if (ESP_OK != ret) {
+        LCD_IFACE_RELEASE();
         return ESP_FAIL;
     }
 
