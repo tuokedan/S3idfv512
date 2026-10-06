@@ -20,14 +20,14 @@
 
 static const char *TAG = "main";
 
-//ÉãÏñÍ·Í¼ÏñÖ¡´óÐ¡
+//æ‘„åƒå¤´å›¾åƒå¸§å¤§å°
 #define CAMERA_FRAMESIZE FRAMESIZE_QVGA
 
 
-//Ëõ·ÅÏÔ´æ
-//buff:´æ´¢Ëõ·ÅºóµãÕóÐÅÏ¢»º³å£¬w1ºÍh1±íÊ¾»º³åµÄ¿íºÍ¸ß
-//bitmap:ÐèÒªËõ·ÅµÄµãÕóÐÅÏ¢£¬w2ºÍh2±íÊ¾µãÕóµÄ¿íºÍ¸ß
-//wºÍh£¬±íÊ¾Ëõ·ÅºóµãÕóµÄ¿íºÍ¸ß
+//ç¼©æ”¾æ˜¾å­˜
+//buff:å­˜å‚¨ç¼©æ”¾åŽç‚¹é˜µä¿¡æ¯ç¼“å†²ï¼Œw1å’Œh1è¡¨ç¤ºç¼“å†²çš„å®½å’Œé«˜
+//bitmap:éœ€è¦ç¼©æ”¾çš„ç‚¹é˜µä¿¡æ¯ï¼Œw2å’Œh2è¡¨ç¤ºç‚¹é˜µçš„å®½å’Œé«˜
+//wå’Œhï¼Œè¡¨ç¤ºç¼©æ”¾åŽç‚¹é˜µçš„å®½å’Œé«˜
 void zoom_bitmap(uint16_t* w, uint16_t* h, uint16_t w1, uint16_t h1, uint16_t *buff, uint16_t w2, uint16_t h2, uint16_t *bitmap)
 {
     if(w1>=w2 && h1>=h2)
@@ -40,7 +40,6 @@ void zoom_bitmap(uint16_t* w, uint16_t* h, uint16_t w1, uint16_t h1, uint16_t *b
     {
         double w_zoom=(double)w2/(double)w1;
         double h_zoom=(double)h2/(double)h1;
-        uint32_t offset=0;
         uint32_t yy1=0,yy2=0;
 
 
@@ -48,7 +47,7 @@ void zoom_bitmap(uint16_t* w, uint16_t* h, uint16_t w1, uint16_t h1, uint16_t *b
 
         if(w_zoom-h_zoom>=0)
         {
-            //ÒÔ¿íËõ·ÅÎª×¼
+            //ä»¥å®½ç¼©æ”¾ä¸ºå‡†
             uint16_t actual_w=w1;
             uint16_t actual_h=(uint16_t)((double)h2/w_zoom);
 
@@ -71,7 +70,7 @@ void zoom_bitmap(uint16_t* w, uint16_t* h, uint16_t w1, uint16_t h1, uint16_t *b
         {
            printf("++++++++++++++++++++22222.\r\n");
 
-           //ÒÔ¸ßËõ·ÅÎª×¼
+           //ä»¥é«˜ç¼©æ”¾ä¸ºå‡†
            uint16_t actual_w=(uint16_t)((double)w2/h_zoom);
            uint16_t actual_h=h2;
 
@@ -181,21 +180,21 @@ void app_main()
 #endif
 
     while (1) {
-        camera_fb_t *pic = esp_camera_fb_get();//µÈ´ýÒ»Ö¡Í¼ÏñÐÅÏ¢
+        camera_fb_t *pic = esp_camera_fb_get();//ç­‰å¾…ä¸€å¸§å›¾åƒä¿¡æ¯
         if (pic) {
             ESP_LOGI(TAG, "picture: %d x %d %dbyte", pic->width, pic->height, pic->len);
 #ifdef CONFIG_CAMERA_JPEG_MODE
-            //ÉãÏñÍ·Êä³öµÄÊÇJPG¸ñÊ½£¬ÐèÒª½âÂë
-            //JPG×ªRGB565
+            //æ‘„åƒå¤´è¾“å‡ºçš„æ˜¯JPGæ ¼å¼ï¼Œéœ€è¦è§£ç 
+            //JPGè½¬RGB565
             mjpegdraw(pic->buf, pic->len, (uint8_t *)rgb565, NULL);
             zoom_bitmap(&buff_width, &buff_height, lcd_GetWidth(), lcd_GetHeight(), lcd_GetBuff(), pic->width, pic->height, rgb565);
 
-            Gui_DrawFont_GBK24(0,100,RED,WHITE, 1, (u8*)"ÉîÛÚÊÐÒÚÑÐµç×ÓÓÐÏÞ¹«Ë¾");
-            lcd_update();//Ë¢ÐÂÏÔÊ¾
+            Gui_DrawFont_GBK24(0,100,RED,WHITE, 1, (u8*)"æ·±åœ³å¸‚äº¿ç ”ç”µå­æœ‰é™å…¬å¸");
+            lcd_update();//åˆ·æ–°æ˜¾ç¤º
 #else
-            //ÉãÏñÍ·Êä³öµÄÊÇBMP¸ñÊ½£¬¿ÉÒÔÖ±½ÓÏÔÊ¾µ½ÏÔÊ¾ÆÁ
-            zoom_bitmap(&buff_width, &buff_height, lcd_GetWidth(), lcd_GetHeight(), lcd_GetBuff(), pic->width, pic->height, pic->buf);
-            lcd_update();//Ë¢ÐÂÏÔÊ¾
+            //æ‘„åƒå¤´è¾“å‡ºçš„æ˜¯BMPæ ¼å¼ï¼Œå¯ä»¥ç›´æŽ¥æ˜¾ç¤ºåˆ°æ˜¾ç¤ºå±
+            zoom_bitmap(&buff_width, &buff_height, lcd_GetWidth(), lcd_GetHeight(), lcd_GetBuff(), pic->width, pic->height, (uint16_t *)pic->buf);
+            lcd_update();//åˆ·æ–°æ˜¾ç¤º
 #endif
             esp_camera_fb_return(pic);
         } else {
